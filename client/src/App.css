@@ -56,6 +56,9 @@
   width: 220px;
   padding: 1.25rem;
   border-right: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebarBrand {
@@ -69,12 +72,35 @@
   gap: 0.5rem;
 }
 
+.sidebarFooter {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
 .navItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   padding: 0.6rem 0.75rem;
   border-radius: 10px;
   color: inherit;
   border: 1px solid transparent;
+}
+
+.navIcon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+  flex: 0 0 auto;
+}
+
+.navButton {
+  width: 100%;
+  text-align: left;
+}
+
+.navButton:hover {
+  border-color: rgba(100, 108, 255, 0.55);
 }
 
 .navItem:hover {
@@ -350,6 +376,7 @@
 
   .sidebar {
     border-right-color: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.03);
   }
 
   .navItemActive {
