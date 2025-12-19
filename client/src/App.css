@@ -99,6 +99,99 @@
   margin: 0 0 1rem;
 }
 
+.propertyList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.propertyCardLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.propertyCard {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.propertyCardLink:hover .propertyCard {
+  border-color: rgba(100, 108, 255, 0.7);
+}
+
+.propertyCardLink:focus-visible {
+  outline: 3px solid rgba(100, 108, 255, 0.55);
+  outline-offset: 4px;
+  border-radius: 16px;
+}
+
+.propertyImage {
+  height: 160px;
+  background: linear-gradient(135deg, rgba(100, 108, 255, 0.25), rgba(0, 0, 0, 0.1));
+}
+
+.propertyBody {
+  padding: 0.9rem 1rem;
+}
+
+.propertyPrice {
+  font-weight: 800;
+  font-size: 1.15rem;
+  margin-bottom: 0.35rem;
+}
+
+.propertyMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.propertyMeta .dot {
+  opacity: 0.6;
+}
+
+.propertyAddress {
+  font-weight: 650;
+}
+
+.propertyCity {
+  opacity: 0.8;
+}
+
+.pageHeader {
+  margin-bottom: 1rem;
+}
+
+.textLink {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+.textLink:hover {
+  text-decoration: underline;
+}
+
+.propertyDetail {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.propertyDetailHero {
+  height: 240px;
+  background: linear-gradient(135deg, rgba(100, 108, 255, 0.25), rgba(0, 0, 0, 0.1));
+}
+
+.propertyDetailBody {
+  padding: 1.25rem 1.25rem 1.4rem;
+}
+
 .authCard {
   text-align: center;
   padding: 2.25rem 2rem;
@@ -239,5 +332,15 @@
 
   .navItemActive {
     background: rgba(100, 108, 255, 0.08);
+  }
+
+  .propertyCard {
+    border-color: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .propertyDetail {
+    border-color: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.02);
   }
 }
