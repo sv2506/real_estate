@@ -89,14 +89,36 @@
 .mainContent {
   flex: 1;
   padding: 2rem;
+  display: flex;
 }
 
 .page {
   max-width: 900px;
+  width: 100%;
+}
+
+.pageCentered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
 }
 
 .pageTitle {
   margin: 0 0 1rem;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.emptyTitle {
+  margin: 0;
 }
 
 .propertyList {

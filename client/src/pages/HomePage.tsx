@@ -58,74 +58,80 @@ export default function HomePage() {
 
   const welcomeText =
     session?.type === "user"
-      ? `Welcome ${session.user.username}`
+      ? "Welcome User"
       : session?.type === "guest"
-      ? "Welcome guest"
+      ? "Welcome Guest"
       : "";
 
   const viewedIds = session?.viewedPropertyIds ?? [];
   const recentIds = [...viewedIds].reverse();
 
+  const pageClassName = viewedIds.length === 0 ? "page pageCentered" : "page";
+
   return (
-    <div className="page">
-      <h1 className="pageTitle">Home</h1>
-      <p>{welcomeText}</p>
-
-      <h2>Recently viewed</h2>
-
-      {viewedIds.length === 0 ? <p>No properties viewed yet.</p> : null}
-      {isLoadingRecent ? <p>Loading…</p> : null}
-      {recentError ? <p role="alert">{recentError}</p> : null}
-
-      {viewedIds.length > 0 ? (
-        <div className="propertyList">
-          {recentIds.map((id) => {
-            const p = propertyById[id];
-            return (
-              <Link
-                key={id}
-                to={`/properties/${id}`}
-                className="propertyCardLink"
-              >
-                <div className="propertyCard">
-                  <div className="propertyImage" aria-hidden="true" />
-                  <div className="propertyBody">
-                    <div className="propertyPrice">
-                      {p ? formatPrice(p.price) : id}
-                    </div>
-                    {p ? (
-                      <>
-                        <div className="propertyMeta">
-                          <span>
-                            <strong>{p.beds}</strong> bd
-                          </span>
-                          <span className="dot">•</span>
-                          <span>
-                            <strong>{p.baths}</strong> ba
-                          </span>
-                          <span className="dot">•</span>
-                          <span>
-                            <strong>
-                              {new Intl.NumberFormat("en-US").format(p.sqft)}
-                            </strong>{" "}
-                            sqft
-                          </span>
-                        </div>
-                        <div className="propertyAddress">{p.address}</div>
-                        <div className="propertyCity">
-                          {p.city}, {p.state} {p.zip}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="propertyCity">Unknown property</div>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+    <div className={pageClassName}>
+      {viewedIds.length === 0 ? (
+        <div className="emptyState">
+          <h2 className="emptyTitle">Welcome</h2>
+          <button onClick={() => navigate("/properties")}>View properties</button>
         </div>
-      ) : null}
+      ) : (
+        <>
+          <h1 className="pageTitle">{welcomeText}</h1>
+          <h2>Recently viewed</h2>
+
+          {isLoadingRecent ? <p>Loading…</p> : null}
+          {recentError ? <p role="alert">{recentError}</p> : null}
+
+          <div className="propertyList">
+            {recentIds.map((id) => {
+              const p = propertyById[id];
+              return (
+                <Link
+                  key={id}
+                  to={`/properties/${id}`}
+                  className="propertyCardLink"
+                >
+                  <div className="propertyCard">
+                    <div className="propertyImage" aria-hidden="true" />
+                    <div className="propertyBody">
+                      <div className="propertyPrice">
+                        {p ? formatPrice(p.price) : id}
+                      </div>
+                      {p ? (
+                        <>
+                          <div className="propertyMeta">
+                            <span>
+                              <strong>{p.beds}</strong> bd
+                            </span>
+                            <span className="dot">•</span>
+                            <span>
+                              <strong>{p.baths}</strong> ba
+                            </span>
+                            <span className="dot">•</span>
+                            <span>
+                              <strong>
+                                {new Intl.NumberFormat("en-US").format(p.sqft)}
+                              </strong>{" "}
+                              sqft
+                            </span>
+                          </div>
+                          <div className="propertyAddress">{p.address}</div>
+                          <div className="propertyCity">
+                            {p.city}, {p.state} {p.zip}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="propertyCity">Unknown property</div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
