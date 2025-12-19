@@ -1,5 +1,10 @@
 # Python Backend (FastAPI)
 
+## Structure
+
+- `app/`: FastAPI entrypoint (`app/main.py`) + schemas + service logic
+- `routes/`: API route modules (FastAPI routers)
+
 ## Setup
 
 ```bash
