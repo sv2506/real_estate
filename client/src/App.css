@@ -258,6 +258,25 @@
   padding: 1.25rem 1.25rem 1.4rem;
 }
 
+.whatThisMeans {
+  margin: 0.85rem 0 0.85rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+}
+
+.whatThisMeansTitle {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.whatThisMeansBody {
+  opacity: 0.9;
+  line-height: 1.35;
+}
+
 .propertyDetailStack {
   display: grid;
   gap: 1rem;
@@ -291,6 +310,11 @@
   padding: 1rem 1.1rem;
 }
 
+.briefCardAttention {
+  border-color: rgba(100, 108, 255, 0.35);
+  background: rgba(100, 108, 255, 0.06);
+}
+
 .briefCardTitle {
   margin: 0 0 0.75rem;
   font-size: 1rem;
@@ -312,6 +336,30 @@
   gap: 0.75rem;
   padding: 0.55rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.briefExplain {
+  grid-column: 1 / -1;
+  margin-top: 0.35rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.16);
+  opacity: 0.95;
+}
+
+.briefExplainList {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.briefExplainList li {
+  margin: 0.25rem 0;
+}
+
+.briefExplainContext {
+  margin-top: 0.45rem;
+  opacity: 0.85;
 }
 
 .briefFactRow:first-child {
@@ -340,6 +388,20 @@
   font-size: 0.8rem;
   opacity: 0.9;
   text-transform: capitalize;
+  background: transparent;
+}
+
+button.briefConfidence {
+  cursor: pointer;
+}
+
+button.briefConfidence:hover {
+  border-color: rgba(100, 108, 255, 0.75);
+}
+
+button.briefConfidence:focus-visible {
+  outline: 3px solid rgba(100, 108, 255, 0.55);
+  outline-offset: 3px;
 }
 
 .briefConfidence_high {
@@ -360,6 +422,38 @@
   list-style: none;
   margin: 0.75rem 0 0;
   padding: 0;
+}
+
+.briefCostRange {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.briefCostRangeLabel {
+  opacity: 0.85;
+}
+
+.briefCostRangeValue {
+  font-weight: 800;
+}
+
+.briefCostColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.briefCostColumnTitle {
+  font-weight: 650;
+  opacity: 0.9;
+  margin-top: 0.25rem;
 }
 
 .briefMoneyRow {
@@ -388,6 +482,31 @@
 
 .briefBullets li {
   margin: 0.35rem 0;
+}
+
+.briefVerify {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.briefVerifyTitle {
+  font-weight: 650;
+  margin-bottom: 0.2rem;
+}
+
+.briefVerifyWhy {
+  opacity: 0.85;
+  line-height: 1.35;
+}
+
+.briefOverall {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.briefOverall .briefNote {
+  margin-top: 0.05rem;
 }
 
 .briefConflicts {

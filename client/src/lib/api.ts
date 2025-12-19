@@ -25,11 +25,24 @@ export type BriefKV = {
   label: string;
   value: string;
   confidence: BriefConfidence;
+  why: string[];
+  context?: string | null;
 };
 
 export type BriefMoneyLine = {
   label: string;
   monthly: number;
+};
+
+export type BriefMoneyRangeLine = {
+  label: string;
+  low: number;
+  high: number;
+};
+
+export type BriefRange = {
+  low: number;
+  high: number;
 };
 
 export type BriefAssumptions = {
@@ -50,15 +63,29 @@ export type BriefSource = {
   reliability: BriefConfidence;
 };
 
+export type BriefVerifyItem = {
+  item: string;
+  why: string;
+};
+
 export type PropertyBrief = {
   property_id: string;
   title: string;
   summary: string;
+  what_this_means: string;
+
+  overall_confidence: BriefConfidence;
+  overall_confidence_why: string;
+
   quick_facts: BriefKV[];
+  estimated_monthly_total_range: BriefRange;
+  estimated_monthly_fixed: BriefMoneyLine[];
+  estimated_monthly_variable: BriefMoneyRangeLine[];
   estimated_monthly_costs: BriefMoneyLine[];
   assumptions: BriefAssumptions;
   highlights: string[];
-  watchouts: string[];
+  risks: string[];
+  watchouts: BriefVerifyItem[];
   conflicts: BriefConflict[];
   sources: BriefSource[];
 };

@@ -45,11 +45,24 @@ class BriefKV(BaseModel):
     label: str
     value: str
     confidence: Confidence
+    why: list[str] = []
+    context: str | None = None
 
 
 class BriefMoneyLine(BaseModel):
     label: str
     monthly: int
+
+
+class BriefMoneyRangeLine(BaseModel):
+    label: str
+    low: int
+    high: int
+
+
+class BriefRange(BaseModel):
+    low: int
+    high: int
 
 
 class BriefAssumptions(BaseModel):
@@ -70,15 +83,31 @@ class BriefSource(BaseModel):
     reliability: Confidence
 
 
+class BriefVerifyItem(BaseModel):
+    item: str
+    why: str
+
+
 class PropertyBrief(BaseModel):
     property_id: str
     title: str
     summary: str
+    what_this_means: str
+
+    overall_confidence: Confidence
+    overall_confidence_why: str
+
     quick_facts: list[BriefKV]
+
+    estimated_monthly_total_range: BriefRange
+    estimated_monthly_fixed: list[BriefMoneyLine]
+    estimated_monthly_variable: list[BriefMoneyRangeLine]
     estimated_monthly_costs: list[BriefMoneyLine]
     assumptions: BriefAssumptions
     highlights: list[str]
-    watchouts: list[str]
+
+    risks: list[str]
+    watchouts: list[BriefVerifyItem]
     conflicts: list[BriefConflict]
     sources: list[BriefSource]
 
@@ -218,7 +247,15 @@ def get_property(property_id: str) -> PropertySummary:
     raise HTTPException(status_code=404, detail="Property not found")
 
 
-def _estimate_monthly_costs(price: int) -> tuple[list[BriefMoneyLine], BriefAssumptions]:
+def _estimate_monthly_costs(
+    price: int,
+) -> tuple[
+    list[BriefMoneyLine],
+    list[BriefMoneyLine],
+    list[BriefMoneyRangeLine],
+    BriefRange,
+    BriefAssumptions,
+]:
     # Simple, explainable mock estimate for MVP UI only.
     assumptions = BriefAssumptions(
         down_payment_percent=20.0,
@@ -235,17 +272,39 @@ def _estimate_monthly_costs(price: int) -> tuple[list[BriefMoneyLine], BriefAssu
         mortgage = int(loan_amount * (r * (1 + r) ** n) / ((1 + r) ** n - 1))
 
     taxes = int(price * 0.012 / 12)  # ~1.2% annual
-    insurance = 175
     hoa = 0
-    utilities = 250
+
+    # Variable estimates: present ranges to avoid false precision.
+    insurance_low, insurance_high = 140, 320
+    utilities_low, utilities_high = 180, 360
+
+    fixed = [
+        BriefMoneyLine(label="Mortgage (P&I)", monthly=mortgage),
+        BriefMoneyLine(label="Property taxes", monthly=taxes),
+        BriefMoneyLine(label="HOA", monthly=hoa),
+    ]
+
+    variable = [
+        BriefMoneyRangeLine(label="Home insurance", low=insurance_low, high=insurance_high),
+        BriefMoneyRangeLine(label="Utilities (est.)", low=utilities_low, high=utilities_high),
+    ]
+
+    breakdown_single = [
+        *fixed,
+        BriefMoneyLine(label="Home insurance", monthly=int((insurance_low + insurance_high) / 2)),
+        BriefMoneyLine(label="Utilities (est.)", monthly=int((utilities_low + utilities_high) / 2)),
+    ]
+
+    fixed_total = sum(x.monthly for x in fixed)
+    variable_low_total = sum(x.low for x in variable)
+    variable_high_total = sum(x.high for x in variable)
+    total_range = BriefRange(low=fixed_total + variable_low_total, high=fixed_total + variable_high_total)
+
     return (
-        [
-            BriefMoneyLine(label="Mortgage (P&I)", monthly=mortgage),
-            BriefMoneyLine(label="Property taxes", monthly=taxes),
-            BriefMoneyLine(label="Home insurance", monthly=insurance),
-            BriefMoneyLine(label="HOA", monthly=hoa),
-            BriefMoneyLine(label="Utilities (est.)", monthly=utilities),
-        ],
+        breakdown_single,
+        fixed,
+        variable,
+        total_range,
         assumptions,
     )
 
@@ -253,7 +312,7 @@ def _estimate_monthly_costs(price: int) -> tuple[list[BriefMoneyLine], BriefAssu
 @app.get("/properties/{property_id}/brief", response_model=PropertyBrief)
 def get_property_brief(property_id: str) -> PropertyBrief:
     prop = get_property(property_id)
-    monthly_costs, assumptions = _estimate_monthly_costs(prop.price)
+    monthly_costs, fixed_costs, variable_costs, total_range, assumptions = _estimate_monthly_costs(prop.price)
 
     conflicts: list[BriefConflict] = []
     # Add a lightweight example conflict for UX demonstration.
@@ -273,24 +332,92 @@ def get_property_brief(property_id: str) -> PropertyBrief:
     ]
 
     watchouts = [
-        "Ask for the seller disclosure package early",
-        "Confirm roof age, HVAC age, and any major repairs",
-        "Check insurance availability/costs (wildfire/flood considerations vary by area)",
+        BriefVerifyItem(
+            item="Request the full disclosure package early",
+            why="It can reveal unpermitted work, known defects, and recurring issues that change your risk and negotiation leverage.",
+        ),
+        BriefVerifyItem(
+            item="Confirm roof age + HVAC age",
+            why="These drive near-term replacement risk and can impact insurance pricing/eligibility.",
+        ),
+        BriefVerifyItem(
+            item="Check insurance availability and realistic premiums",
+            why="In some areas, coverage can be expensive or require extra time—this can affect affordability and closing timeline.",
+        ),
     ]
 
+    sqft_context = "Typical nearby homes: 1,750–1,850 sqft (mock)"
     quick_facts = [
-        BriefKV(label="Price", value=f"${prop.price:,}", confidence="high"),
-        BriefKV(label="Beds / Baths", value=f"{prop.beds} / {prop.baths}", confidence="high"),
-        BriefKV(label="Living area", value=f"{prop.sqft:,} sqft", confidence="medium" if conflicts else "high"),
-        BriefKV(label="Home type", value="Single-family (mock)", confidence="low"),
-        BriefKV(label="HOA", value="No HOA (mock)", confidence="low"),
+        BriefKV(
+            label="Price",
+            value=f"${prop.price:,}",
+            confidence="high",
+            why=["Matches the current listing price."],
+        ),
+        BriefKV(
+            label="Beds / Baths",
+            value=f"{prop.beds} / {prop.baths}",
+            confidence="high",
+            why=["Listing and public record typically agree on beds/baths."],
+        ),
+        BriefKV(
+            label="Living area",
+            value=f"{prop.sqft:,} sqft",
+            confidence="medium" if conflicts else "high",
+            why=(
+                [
+                    "Only one primary source is available right now.",
+                    "Public record and listing can disagree—confirm via disclosures/appraisal.",
+                ]
+                if conflicts
+                else ["No conflicts detected in current sources."]
+            ),
+            context=sqft_context,
+        ),
+        BriefKV(
+            label="Home type",
+            value="Single-family (mock)",
+            confidence="low",
+            why=["Placeholder until we ingest property type from a reliable source."],
+        ),
+        BriefKV(
+            label="HOA",
+            value="No HOA (mock)",
+            confidence="low",
+            why=["Placeholder until HOA documents/MLS fields are ingested."],
+        ),
     ]
+
+    risks: list[str] = []
+    if conflicts:
+        risks.append("Living area differs between listing and public record")
+    risks.extend(
+        [
+            "Roof & HVAC age unverified",
+            "Insurance costs may vary depending on hazard zone",
+        ]
+    )
 
     sources = [
         BriefSource(name="Listing (mock feed)", last_updated="2025-12-19", reliability="medium"),
         BriefSource(name="County record (mock)", last_updated="2025-12-01", reliability="high"),
         BriefSource(name="User notes", last_updated="2025-12-19", reliability="low"),
     ]
+
+    likely_total_mid = int((total_range.low + total_range.high) / 2)
+    what_this_means = (
+        f"This home looks like a solid fit on basics ({prop.beds}bd/{prop.baths}ba) with an estimated monthly cost "
+        f"around {likely_total_mid:,} and a likely range of {total_range.low:,}–{total_range.high:,}. "
+        "Before making an offer, focus on resolving the biggest unknowns (living area accuracy and major system ages), "
+        "since those can change value, insurance, and near‑term costs."
+    )
+
+    overall_confidence: Confidence = "medium" if conflicts else "medium"
+    overall_confidence_why = (
+        "Most core facts are available, but some key details are still unverified or conflicting (sqft and home systems)."
+        if conflicts
+        else "Core facts are available, but several details are still placeholders until more sources are connected."
+    )
 
     return PropertyBrief(
         property_id=prop.id,
@@ -299,10 +426,19 @@ def get_property_brief(property_id: str) -> PropertyBrief:
             "A home-buyer focused snapshot of the property, key costs, and questions to ask "
             "before you make an offer."
         ),
+        what_this_means=what_this_means,
+
+        overall_confidence=overall_confidence,
+        overall_confidence_why=overall_confidence_why,
+
         quick_facts=quick_facts,
+        estimated_monthly_total_range=total_range,
+        estimated_monthly_fixed=fixed_costs,
+        estimated_monthly_variable=variable_costs,
         estimated_monthly_costs=monthly_costs,
         assumptions=assumptions,
         highlights=highlights,
+        risks=risks,
         watchouts=watchouts,
         conflicts=conflicts,
         sources=sources,

@@ -28,6 +28,10 @@ function formatDollars(value: number): string {
   }).format(value);
 }
 
+function formatRange(low: number, high: number): string {
+  return `${formatDollars(low)} – ${formatDollars(high)}`;
+}
+
 export default function PropertyDetailPage() {
   const { propertyId } = useParams();
 
@@ -37,6 +41,10 @@ export default function PropertyDetailPage() {
 
   const [brief, setBrief] = useState<PropertyBrief | null>(null);
   const [briefError, setBriefError] = useState<string | null>(null);
+
+  const [expandedFactLabel, setExpandedFactLabel] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (!propertyId) return;
@@ -49,6 +57,7 @@ export default function PropertyDetailPage() {
       setIsLoading(true);
       setError(null);
       setBriefError(null);
+      setExpandedFactLabel(null);
       try {
         const [propertyData, briefData] = await Promise.all([
           fetchProperty(id),
@@ -107,6 +116,16 @@ export default function PropertyDetailPage() {
             </div>
             <div className="propertyDetailBody">
               <div className="propertyPrice">{formatPrice(property.price)}</div>
+
+              {brief ? (
+                <div className="whatThisMeans" aria-label="What this means">
+                  <div className="whatThisMeansTitle">Summary</div>
+                  <div className="whatThisMeansBody">
+                    {brief.what_this_means}
+                  </div>
+                </div>
+              ) : null}
+
               <div className="propertyMeta">
                 <span>
                   <strong>{property.beds}</strong> bd
@@ -137,6 +156,20 @@ export default function PropertyDetailPage() {
                 <p className="briefSummary">{brief.summary}</p>
               </div>
 
+              {brief.risks.length ? (
+                <div
+                  className="briefCard briefCardAttention"
+                  aria-label="Open questions and risks"
+                >
+                  <h3 className="briefCardTitle">⚠️ Open questions / risks</h3>
+                  <ul className="briefBullets">
+                    {brief.risks.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
               <div className="briefGrid">
                 <div className="briefCard">
                   <h3 className="briefCardTitle">Quick facts</h3>
@@ -146,43 +179,90 @@ export default function PropertyDetailPage() {
                         <dt className="briefFactLabel">{kv.label}</dt>
                         <dd className="briefFactValue">
                           {kv.value}
-                          <span
+                          <button
+                            type="button"
                             className={`briefConfidence briefConfidence_${kv.confidence}`}
+                            title="Click to see why"
+                            onClick={() =>
+                              setExpandedFactLabel((cur) =>
+                                cur === kv.label ? null : kv.label
+                              )
+                            }
+                            aria-expanded={expandedFactLabel === kv.label}
                           >
                             {kv.confidence}
-                          </span>
+                          </button>
                         </dd>
+
+                        {expandedFactLabel === kv.label &&
+                        (kv.why.length || kv.context) ? (
+                          <div className="briefExplain" role="note">
+                            {kv.why.length ? (
+                              <ul className="briefExplainList">
+                                {kv.why.map((line) => (
+                                  <li key={line}>{line}</li>
+                                ))}
+                              </ul>
+                            ) : null}
+                            {kv.context ? (
+                              <div className="briefExplainContext">
+                                {kv.context}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
                     ))}
                   </dl>
                 </div>
 
                 <div className="briefCard">
-                  <h3 className="briefCardTitle">Estimated monthly costs</h3>
+                  <h3 className="briefCardTitle">Estimated monthly cost</h3>
+                  <div className="briefCostRange">
+                    <div className="briefCostRangeLabel">Likely range</div>
+                    <div className="briefCostRangeValue">
+                      {formatRange(
+                        brief.estimated_monthly_total_range.low,
+                        brief.estimated_monthly_total_range.high
+                      )}
+                    </div>
+                  </div>
+
                   <p className="briefNote">
-                    Assumes {brief.assumptions.down_payment_percent}% down at{" "}
-                    {brief.assumptions.interest_rate_percent}% for{" "}
+                    Assumptions: {brief.assumptions.down_payment_percent}% down
+                    at {brief.assumptions.interest_rate_percent}% for{" "}
                     {brief.assumptions.loan_term_years} years.
                   </p>
-                  <ul className="briefMoneyList">
-                    {brief.estimated_monthly_costs.map((line) => (
-                      <li className="briefMoneyRow" key={line.label}>
-                        <span>{line.label}</span>
-                        <strong>{formatDollars(line.monthly)}</strong>
-                      </li>
-                    ))}
-                    <li className="briefMoneyRow briefMoneyTotal">
-                      <span>Total (est.)</span>
-                      <strong>
-                        {formatDollars(
-                          brief.estimated_monthly_costs.reduce(
-                            (sum, line) => sum + line.monthly,
-                            0
-                          )
-                        )}
-                      </strong>
-                    </li>
-                  </ul>
+
+                  <div className="briefCostColumns">
+                    <div>
+                      <div className="briefCostColumnTitle">
+                        Fixed (more predictable)
+                      </div>
+                      <ul className="briefMoneyList">
+                        {brief.estimated_monthly_fixed.map((line) => (
+                          <li className="briefMoneyRow" key={line.label}>
+                            <span>{line.label}</span>
+                            <strong>{formatDollars(line.monthly)}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <div className="briefCostColumnTitle">
+                        Variable (can swing)
+                      </div>
+                      <ul className="briefMoneyList">
+                        {brief.estimated_monthly_variable.map((line) => (
+                          <li className="briefMoneyRow" key={line.label}>
+                            <span>{line.label}</span>
+                            <strong>{formatRange(line.low, line.high)}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -198,16 +278,19 @@ export default function PropertyDetailPage() {
 
                 <div className="briefCard">
                   <h3 className="briefCardTitle">Things to verify</h3>
-                  <ul className="briefBullets">
-                    {brief.watchouts.map((item) => (
-                      <li key={item}>{item}</li>
+                  <div className="briefVerify">
+                    {brief.watchouts.map((w) => (
+                      <div key={w.item} className="briefVerifyItem">
+                        <div className="briefVerifyTitle">{w.item}</div>
+                        <div className="briefVerifyWhy">{w.why}</div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
 
               {brief.conflicts.length ? (
-                <div className="briefCard">
+                <div className="briefCard briefCardAttention">
                   <h3 className="briefCardTitle">Conflicts to resolve</h3>
                   <div className="briefConflicts">
                     {brief.conflicts.map((c) => (
@@ -247,6 +330,19 @@ export default function PropertyDetailPage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+
+              <div className="briefCard">
+                <h3 className="briefCardTitle">Overall data confidence</h3>
+                <div className="briefOverall">
+                  <span
+                    className={`briefConfidence briefConfidence_${brief.overall_confidence}`}
+                    aria-label={`Overall confidence ${brief.overall_confidence}`}
+                  >
+                    {brief.overall_confidence}
+                  </span>
+                  <p className="briefNote">{brief.overall_confidence_why}</p>
+                </div>
               </div>
             </section>
           ) : null}
