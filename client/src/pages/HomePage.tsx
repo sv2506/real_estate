@@ -95,7 +95,16 @@ export default function HomePage() {
                   className="propertyCardLink"
                 >
                   <div className="propertyCard">
-                    <div className="propertyImage" aria-hidden="true" />
+                    <div className="propertyImage" aria-hidden={!p?.image_url}>
+                      {p?.image_url ? (
+                        <img
+                          className="propertyImageImg"
+                          src={p.image_url}
+                          alt={`${p.address}, ${p.city}`}
+                          loading="lazy"
+                        />
+                      ) : null}
+                    </div>
                     <div className="propertyBody">
                       <div className="propertyPrice">
                         {p ? formatPrice(p.price) : id}
