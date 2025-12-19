@@ -73,7 +73,9 @@ export default function HomePage() {
       {viewedIds.length === 0 ? (
         <div className="emptyState">
           <h2 className="emptyTitle">Welcome</h2>
-          <button onClick={() => navigate("/properties")}>View properties</button>
+          <button onClick={() => navigate("/properties")}>
+            View properties
+          </button>
         </div>
       ) : (
         <>

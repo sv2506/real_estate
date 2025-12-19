@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../lib/api";
 import { getSession, setSession } from "../lib/session";
 
+function isValidEmail(value: string): boolean {
+  const v = value.trim();
+  if (v.length === 0) return false;
+  // Simple, practical email validation (enough for UI gating).
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -18,9 +25,26 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = email.trim().length > 0 && password.trim().length > 0;
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+
+  const emailOk = isValidEmail(email);
+  const passwordOk = password.trim().length > 0;
+  const canSubmit = emailOk && passwordOk;
+
+  const emailError =
+    emailTouched && !emailOk ? "Enter a valid email address" : null;
+  const passwordError =
+    passwordTouched && !passwordOk ? "Password cannot be empty" : null;
+
+  const emailWarningId = "email-warning";
+  const passwordWarningId = "password-warning";
 
   async function onLogin() {
+    setEmailTouched(true);
+    setPasswordTouched(true);
+    if (!canSubmit) return;
+
     setError(null);
     setIsSubmitting(true);
     try {
@@ -69,9 +93,17 @@ export default function LoginPage() {
             className="authInput"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => setEmailTouched(true)}
             autoComplete="email"
             placeholder="Enter your email"
+            aria-invalid={!!emailError}
+            aria-describedby={emailError ? emailWarningId : undefined}
           />
+          {emailError ? (
+            <p id={emailWarningId} className="fieldWarning" role="alert">
+              {emailError}
+            </p>
+          ) : null}
         </div>
 
         <div className="authField">
@@ -84,9 +116,17 @@ export default function LoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onBlur={() => setPasswordTouched(true)}
             autoComplete="current-password"
             placeholder="Enter your password"
+            aria-invalid={!!passwordError}
+            aria-describedby={passwordError ? passwordWarningId : undefined}
           />
+          {passwordError ? (
+            <p id={passwordWarningId} className="fieldWarning" role="alert">
+              {passwordError}
+            </p>
+          ) : null}
         </div>
 
         {error ? (

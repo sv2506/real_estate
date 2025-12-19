@@ -290,6 +290,15 @@
   font-size: 0.95rem;
 }
 
+.fieldWarning {
+  width: min(420px, 100%);
+  margin: 0.25rem 0 0;
+  text-align: left;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  color: #f59e0b;
+}
+
 .authActions {
   display: grid;
   grid-template-columns: 1fr;
