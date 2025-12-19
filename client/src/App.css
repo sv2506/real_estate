@@ -178,6 +178,15 @@
 .propertyImage {
   height: 160px;
   background: linear-gradient(135deg, rgba(100, 108, 255, 0.25), rgba(0, 0, 0, 0.1));
+  position: relative;
+  overflow: hidden;
+}
+
+.propertyImageImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .propertyBody {
@@ -234,10 +243,200 @@
 .propertyDetailHero {
   height: 240px;
   background: linear-gradient(135deg, rgba(100, 108, 255, 0.25), rgba(0, 0, 0, 0.1));
+  position: relative;
+  overflow: hidden;
+}
+
+.propertyHeroImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .propertyDetailBody {
   padding: 1.25rem 1.25rem 1.4rem;
+}
+
+.propertyDetailStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.briefHeader {
+  margin: 0 0 0.75rem;
+}
+
+.briefTitle {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.briefSummary {
+  margin: 0.25rem 0 0;
+  opacity: 0.85;
+}
+
+.briefGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.briefCard {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 1.1rem;
+}
+
+.briefCardTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.briefNote {
+  margin: 0.4rem 0 0;
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+
+.briefFacts {
+  margin: 0;
+}
+
+.briefFactRow {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.briefFactRow:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.briefFactLabel {
+  opacity: 0.85;
+}
+
+.briefFactValue {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.briefConfidence {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.8rem;
+  opacity: 0.9;
+  text-transform: capitalize;
+}
+
+.briefConfidence_high {
+  border-color: rgba(100, 108, 255, 0.6);
+  background: rgba(100, 108, 255, 0.12);
+}
+
+.briefConfidence_medium {
+  border-color: rgba(100, 108, 255, 0.35);
+  background: rgba(100, 108, 255, 0.06);
+}
+
+.briefConfidence_low {
+  opacity: 0.7;
+}
+
+.briefMoneyList {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.briefMoneyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.briefMoneyRow:first-child {
+  border-top: none;
+}
+
+.briefMoneyTotal {
+  margin-top: 0.2rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.briefBullets {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.briefBullets li {
+  margin: 0.35rem 0;
+}
+
+.briefConflicts {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.briefConflictField {
+  font-weight: 650;
+  margin-bottom: 0.25rem;
+}
+
+.briefConflictValues {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.briefConflictValue {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 12px;
+  padding: 0.5rem 0.65rem;
+}
+
+.briefSources {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.briefSourceRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.briefSourceName {
+  font-weight: 600;
+}
+
+.briefSourceMeta {
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .authCard {
